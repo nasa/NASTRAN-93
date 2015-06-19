@@ -1,0 +1,509 @@
+#!/bin/csh
+clear
+set   rfdir=/usr/cckt/nast93/rf
+set  altdir=/usr/cckt/nast93/alt
+set nasexec=/usr/cckt/nast93/bin/nastrn.exe
+set naschk=/usr/cckt/nast93/bin/chkfil.exe
+set probname = $1
+echo ' '
+  if ( $probname == '' ) then
+  echo '                                 NASTRAN'
+  echo ' '
+  echo -n 'Please give problem id for designation of files ===> '
+  set probname = $<
+  endif
+# set ft77=$probname.pun
+set ft77=none
+set ft76=$probname.dic
+set ft04=$probname.log
+set ft05=$probname.nid
+set ft06=$probname.out
+set ft08=none
+# set ft11=$probname.out11
+set ft11=none
+set plt2=none
+set script=$probname.cmd
+set nasscr=$cwd/temp$$
+set ft12=none
+set sof1=none
+set sof2=none
+set sft12=
+set nptp=$probname.nptp
+set optp=none
+   if ( ! -e  $ft05 ) then
+   set sft05='(#### does not exist ####)'
+   else 
+   set sft05=
+   endif
+   if ( -e nogood1 ) then
+   rm nogood1
+   endif
+   if ( -e nogood2 ) then
+   rm nogood2
+   endif
+   if ( -e nogood3 ) then
+   rm nogood3
+   endif
+   $naschk < $ft05
+	if ( -e nogood1 ) then 
+	set ft76=$probname.dic
+        rm nogood1
+	endif
+	if ( -e nogood2 ) then
+	set plt2=$probname.plt
+        rm nogood2
+	endif
+	if ( -e nogood3) then
+	set ft76=$probname.dic
+	set plt2=$probname.plt
+        rm nogood3
+	endif
+   endif
+set nogo=1
+while ( $nogo != 0 )
+clear 
+echo '                               NASTRAN'
+echo ' '
+set snasexec=
+set sft77=
+set sft76=
+set sft04=
+set sft06=
+set sft08=
+set sft11=
+set splt2 =
+set snptp=
+set soptp=
+set sdir=
+set sscript=
+set ssof1=
+set ssof2=
+set nogo=1
+   if ( $nptp != 'none' ) then 
+      if ( -e $nptp ) then 
+      set snptp=' (#### will be replaced ####)'
+      endif
+      if ( -e "$ft76" ) then
+      set sft76=' (#### will be replaced ####)'
+      endif
+   endif 
+   if ( $sof1 != 'none' ) then
+      if( -e $sof1 ) then
+      set ssof1=
+      else set ssof1='(#### does not exist ####)'
+      endif
+   endif
+   if ( $sof2 != 'none' ) then
+      if( -e $sof2 ) then
+      set ssof2=
+      else set ssof2='(#### does not exist ####)'
+      endif
+   endif
+   if ( -e $plt2 ) then
+   set splt2='(#### will be replaced ####)'
+   else set splt2=
+   endif
+   if ( -d $nasscr ) then
+   set sdir=' (#### will be recreated ####)'
+   endif
+   if ( -e  $ft06 ) then
+   set sft06=' (#### will be replaced ####)'
+   endif
+   if ( -e $ft04 ) then 
+   set sft04=' (#### will be replaced ####)'
+   endif
+   if ( -e $ft77 ) then 
+   set sft77=' (#### will be replaced ####)'
+   endif
+   if ( -e "$ft11" ) then 
+   set sft11=' (#### will be replaced ####)'
+   else
+   set sft11=
+   endif
+   if ( -e  $script ) then 
+   set sscript=' (#### will be replaced ####)'
+   endif
+echo '  (i)  Input file       ===> '$ft05   $sft05      
+echo '  (o)  Output file      ===> '$ft06   $sft06
+echo '  (l)  Logfile          ===> '$ft04   $sft04
+echo '  (s)  Script file      ===> '$script $sscript
+echo '  (pu) Punch file       ===> '$ft77   $sft77
+echo '  (pl) Plot file        ===> '$plt2   $splt2
+echo '  (c)  Checkpoint NPTP  ===> '$nptp   $snptp
+echo '  (d)  Checkpoint dict. ===> '$ft76   $sft76
+echo '  (r)  Restart OPTP     ===> '$optp   $soptp
+# echo '  (rd) Restart dict.    ===> '$ft08   $sft08
+echo '  (in) IN12 file        ===> '$ft12   $sft12
+echo '  (ou) OUT11 file       ===> '$ft11   $sft11
+echo '  (s1) SOF1 file        ===> '$sof1   $ssof1
+echo '  (s2) SOF2 file        ===> '$sof2   $ssof2
+echo ' '
+echo '  (w)  Work Directory ===> '$nasscr $sdir
+echo '  (g)  To create shell script and execute NASTRAN'
+echo '  (a)  Abort without building shell script'
+echo
+echo -n ' Specify Option ===> ' 
+set  opt = $<
+   switch ($opt) 
+     case 'a':
+     case 'A':
+     case 'q':
+     case 'Q':
+	clear
+	exit
+	breaksw
+     case 'i':
+     case 'I':
+     echo ' '
+	set ok=i1
+	while ( $ok != i0 )
+	   echo -n 'Please give input file ===> '
+	   set ft05 = $<
+	      if ( ! -e $ft05 ) then
+	      echo $ft05 'does not exist'
+	      else set ok = i0
+                if ( -e nogood1 ) then
+                rm nogood1
+                endif
+                if ( -e nogood2 ) then
+                rm nogood2
+                endif
+                if ( -e nogood3 ) then
+                rm nogood3
+                endif
+	      $naschk < $ft05
+	      set sft05=
+              set nptp=$probname.nptp
+              set ft76=none
+              set plt2=none
+	         if ( -e nogood1 ) then
+		 set ft76=$probname.dic
+                 rm nogood1
+		 endif
+		 if ( -e nogood2 ) then 
+		 set plt2=$probname.plt
+                 rm nogood2
+		 endif
+		 if ( -e nogood3 ) then 
+		 set ft76=$probname.dic
+		 set plt2=$probname.plt
+                 rm nogood3
+		 endif
+	      endif
+	   end
+	 breaksw
+       case 'G':
+       case 'g':
+	 set nogo=0
+	 clear
+	    if ( ! -e $ft05 ) then 
+	    echo '                ERROR'
+	    echo ' '
+	    echo $ft05 'does not exist--cannot create script'
+	    set  nogo=i1
+	    set  anything =$<
+	    endif
+	    if ( -d $nasscr ) then 
+	    echo ' '
+	    echo ' '
+	    echo '                  WARNING'
+	    echo ' '
+	    echo 'Directory '$nasscr ' exists.  It will be recreated.'
+	    echo 'All existing files in this directory will be lost!!!'
+	    echo ' '
+	    echo -n 'Are you sure you want this to happen? (y or n) '
+	    set ans = $<
+	       if (  $ans != 'y' ) then 
+	       set nogo=i1
+	       endif
+	    endif
+	  breaksw
+     case 'r':
+     case 'R':
+	echo ' '
+	set ok=i1
+	while ( $ok != i0 )
+	   echo -n 'Please give restart OPTP file ===> '
+	   set  optp = $<
+	      if ( ! -e $optp ) then 
+	      echo $optp '(#### does not exist ####)'
+	      else set ok=i0
+	      endif
+	   end
+	 breaksw
+     case 's1':
+     case 'S1':
+	echo ' '
+        echo -n 'Please give SOF1 file ===> ' 
+	set  sof1 = $<
+	   if ( ! -e $sof1 ) then 
+	   set  ssof1='(#### does not exist ####)'
+	   else set ssof1=
+	   endif
+	 breaksw
+     case 's2':
+     case 'S2':
+	echo ' '
+        echo -n 'Please give SOF2 file ===> ' 
+	set  sof2 = $<
+	   if ( ! -e $sof2 ) then 
+	   set ssof2='(#### does not exist ####)'
+	   else set ssof2=
+	   endif
+	 breaksw
+     case 'RD':
+     case 'Rd':
+     case 'rd':
+     case 'rD':
+	echo ' '
+	set ok=i1
+	while ( $ok != i0 )
+	   echo -n 'Please give restart dict ===> '
+	   set ft08 = $<
+	      if ( ! -e $ft08 ) then 
+	      echo $ft08='(#### does not exist ####)'
+	      else set ok=i0
+	      set sft08=
+	      endif
+	   end
+	 breaksw
+     case 'in':
+     case 'IN':
+     case 'In':
+     case 'iN':
+	echo ' '
+	set ok=i1
+	while ($ok != i0 )
+	   echo -n 'Please give in12 file ===> '
+	   set ft12 = $<
+	      if ( ! -e $ft12  ) then 
+              set sft12='(#### does not exist ####)'
+              set ok=i0
+              else
+	      set sft12=
+              set ok=i0
+	      endif
+	   end
+	 breaksw
+     case 'ou':
+     case 'OU':
+     case 'Ou':
+     case 'oU':
+	echo ' '
+	set ok=i1
+	while ($ok != i0 )
+	   echo -n 'Please give out11 file ===> '
+	   set ft11 = $<
+	      if ( -e  $ft11 ) then 
+	      set sft11=
+	      set ok=i0
+	      else set ok=i0
+	      set sft11='**** will be replaced ****'
+	      endif
+	   end
+	 breaksw
+     case 'o':
+     case 'O':
+	echo ' '
+	set ok=i1
+	while ( $ok != i0 )
+	   echo -n 'Please give output file ===> '
+	   set  ft06 = $<
+	      if ( -e $ft06 ) then
+	      echo -n $ft06 'exist, do you want to keep it? (y or n) '
+	      set  ans = $<
+		 if (  $ans == 'n' ) then
+		 rm $ft06
+		 set ok=i0
+		 endif
+	      else set ok=i0
+	      endif
+	   end
+	 breaksw
+     case 'l':
+     case 'L':
+	echo ' '
+	set ok=i1
+	while ( $ok != i0 )
+	   echo -n 'Please give log file ===> '
+	   set  ft04 = $<
+	      if ( -e  $ft04 ) then
+	      echo -n $ft04 'exist, do you want to keep it? (y or n) '
+	      set ans = $<
+		 if ( $ans == 'n' ) then 
+		 rm $ft04
+		 set ok=i0
+		 endif
+	      else set ok=i0
+	      endif
+	   end
+	 breaksw
+     case 'd':
+     case 'D':
+	echo ' '
+	set ok=i1
+	while ( $ok != i0 )
+	   echo -n 'Please give checkpoint dict. ===> '
+	   set ft76 = $<
+	      if ( -e  $ft76 ) then 
+	      echo -n $ft76 'exist, do you want to keep it? (y or n) '
+	      set ans = $<
+		 if ( $ans == 'n' ) then
+		 rm $ft76
+		 set ok = i0
+		 endif
+	      else set ok = i0
+	      endif
+	   end
+	 breaksw
+     case 'pu':
+     case 'Pu':
+     case 'pU':
+     case 'PU':
+	echo ' '
+	set ok=i1
+	while ( $ok != i0 )
+	   echo -n 'Please give punch file ===> '
+	   set  ft77 =  $<
+	      if ( -e  $ft77 ) then
+	      echo -n $ft77 'exist, do you want to keep it? (y or n) '
+	      set  ans = $<
+		 if ( $ans == 'n' ) then
+		 rm $ft77
+		 set ok = i0
+		 endif
+	      else set ok = i0
+	      endif
+	   end
+	 breaksw
+     case 's':
+     case 'S':
+	echo ' '
+	set ok=i1
+	while ( $ok != i0 )
+	   echo -n 'Please give script file ===> '
+	   set  script = $<
+	      if ( -e  $script ) then 
+	      echo -n $script 'exist, do you want to keep it? (y or n) '
+	      set ans = $<
+		 if ( $ans == 'n' ) then 
+		 rm $script
+		 set ok = i0
+		 endif
+	      else set ok = i0
+	      endif
+	   end
+	 breaksw
+     case 'c':
+     case 'C':
+	echo ' '
+	set ok = i1
+	while (  $ok != i0 )
+	   echo -n 'Please give checkpoint NPTP file ===> '
+	   set nptp = $<
+	      if ( -e  $nptp ) then 
+	      echo -n $nptp 'exist, do you want to keep it? (y or n) '
+	      set ans = $<
+		 if ( $ans == 'n' ) then 
+		 rm $nptp
+		 set ok = i0
+		 endif
+	      else set ok = i0
+	      endif
+	   end
+	 breaksw
+     case 'w':
+     case 'W':
+	echo ' '
+	echo -n 'Please give work directory ===> '
+	set  nasscr = $<
+	breaksw 
+     case 'pl':
+     case 'Pl':
+     case 'pL':
+     case 'PL':
+	echo ' '
+	set ok = i1
+	while ( $ok != i0 )
+	   echo -n 'Please give plot file ===> '
+	   set plt2 = $<
+	      if ( -e '$plt2' ) then 
+	      echo -n $plt2 'exist, do you want to keep it? (y or n) '
+	      set  ans =$<
+		 if ( $ans == 'n' ) then 
+		 then rm $plt2
+		 set ok = i0
+		 endif
+	      else set ok = i0
+	      endif
+	   end
+	 breaksw
+   endsw
+end
+if ( -e $script ) then 
+rm $script
+endif
+echo '#/bin/csh' >> $script
+echo 'if ( -d ' $nasscr' ) then' >> $script
+echo 'rm '$nasscr'/*' >> $script
+echo 'rmdir '$nasscr >> $script
+echo 'endif' >> $script
+echo 'mkdir '$nasscr >> $script
+echo 'if ( -e '$nptp ' ) then'>> $script
+echo 'rm '$nptp >> $script
+echo 'endif' >> $script
+echo 'if ( -e '$ft04 ' ) then'>> $script
+echo 'rm '$ft04 >> $script
+echo 'endif' >> $script
+echo 'if ( -e '$ft77 ' ) then'>> $script
+echo 'rm '$ft77 >> $script
+echo 'endif' >> $script
+echo 'if ( -e '$ft76 ' ) then'>> $script
+echo 'rm '$ft76 >> $script
+echo 'endif' >> $script
+echo 'if ( -e '$ft06 ' ) then'>> $script
+echo 'rm '$ft06 >> $script
+echo 'endif' >> $script
+echo 'if ( -e '$plt2 ' ) then'>> $script
+echo 'rm '$plt2 >> $script
+echo 'endif' >> $script
+# echo 'ln -s '$altdir'/cosdbc1.alt COSDBC1' >> $script
+# echo 'ln -s '$altdir'/cosdfva.alt COSDFVA' >> $script
+# echo 'ln -s '$altdir'/cosddam.alt COSDDAM' >> $script
+# echo 'ln -s '$altdir'/coshyd1.alt COSHYD1' >> $script
+# echo 'ln -s '$altdir'/coshyd2.alt COSHYD2' >> $script
+# echo 'ln -s '$altdir'/cosmfva.alt COSMFVA' >> $script
+echo 'echo ==== NASTRAN is beginning execution of "'$probname'" ====' >> $script
+echo 'env NPTPNM='$nptp '\' >> $script 
+echo '  PLTNM='$plt2 ' DICTNM='$ft76 ' PUNCHNM='$ft77 '\' >> $script 
+echo '  IN12='$ft12 ' OUT11='$ft11 ' DIRCTY='$nasscr '\' >> $script 
+echo '  LOGNM='$ft04 ' OPTPNM='$optp ' RFDIR='$rfdir '\' >> $script 
+echo '  SOF1='$sof1 ' SOF2='$sof2  '\' >> $script 
+echo    $nasexec' < '$ft05' >'$ft06 >> $script
+echo 'rm '$nasscr'/*' >> $script
+echo 'rmdir '$nasscr >> $script
+echo 'if ( -e none  ) then'>> $script
+echo 'rm none' >> $script
+echo 'endif' >> $script
+# echo 'rm COS*' >> $script
+echo 'echo   ===== NASTRAN has completed problem "'$probname'" ====='>> $script
+clear 
+echo 'The shell script '$script' was successfully created'
+echo
+echo -n 'Do you want to execute this problem now? (y or n) ===> '
+chmod +x $script
+set ans = $<
+   if ( $ans == 'y' ) then
+   echo ' '
+   echo -n 'Do you want to run in foreground or background? (f or b) ===> '
+   set ans = $<
+      if ( $ans == 'f' ) then
+      $cwd/$script
+      else
+      $cwd/$script &
+      endif
+   else echo ' '
+   echo 'Type the command "'$script'" to execute this problem intereactively'
+   echo '                            OR '
+   echo '  the command "'$script' &"  to execute this problem in batch'
+   endif

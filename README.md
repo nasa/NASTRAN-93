@@ -1,6 +1,7 @@
-# NASTRAN
+# NASTRAN-93
 
-##There is a newer version of the NASTRAN software available in [this repo](https://github.com/nasa/NASTRAN-95):
+##This is the 1993 release
+##There is a newer version of the NASTRAN software available in [this repo](https://github.com/nasa/NASTRAN-95) NASTRAN-95:
 
 NASTRAN has been released under the  
 [NASA Open Source Agreement version 1.3](https://github.com/nasa/NASTRAN/raw/master/NASA%20Open%20Source%20Agreement-NASTRAN.doc).
